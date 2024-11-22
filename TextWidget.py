@@ -11,14 +11,14 @@ class TextWidget(QWidget):
     super().__init__()
     # Qlabel is the basic component, it can be customized for different
     # purposes.
-    self.textLabel = QLabel("Hello World", self)
+    self.textLabel = QLabel("Angle: 0.0" , self)
     layout = QVBoxLayout()
     # Add the view to the layout
     layout.addWidget(self.textLabel)
 
     # Set the layout for the window
     self.setLayout(layout)
-    self.textLabel.setText("0.0")
+    #self.textLabel.setText("0.0")
   def networkStuff(self,parameterName,tableName,entryName):
         self.parameterName = parameterName
         self.tableName = tableName
@@ -32,7 +32,7 @@ class TextWidget(QWidget):
         if self.NTManager.getValue() is not None:
             self.updateFromNT(self.NTManager.getValue())    
   def updateFromNT(self, message: float):
-      pass
-        #self.textLabel.setText(str(message))
+      
+        self.textLabel.setText("Angle: " + str(message))
         #self.setText(self.parameterName + str(message))
 
