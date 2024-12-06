@@ -29,6 +29,8 @@ class wheelImage(QWidget):
 
         # Set the layout for the window
         self.setLayout(layout)
+        self.networkStuff("defaultParameter","networkTable","networkTableEntry")
+  
 
     def networkStuff(self,parameterName,tableName,entryName):
         self.parameterName = parameterName
@@ -42,10 +44,13 @@ class wheelImage(QWidget):
 
         if self.NTManager.getValue() is not None:
             self.updateFromNT(self.NTManager.getValue())    
-    def updateFromNT(self, message: float):
-        self.pixmap_item.setRotation(message)
+    def updateFromNT(self, message):
+        if (isinstance(message, tuple)):
+            self.pixmap_item.setRotation((message[1]%1)*360)
+        
+        #self.pixmap_item.setRotation(float(message[1]))
         #self.setText(self.parameterName + str(message))
-
+        #pass
 
     def rotate_image(self, angle):
         """

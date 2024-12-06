@@ -5,8 +5,8 @@ class NetworkTableManager(QObject):
     new_value_available = Signal(tuple)
     def __init__(self, tableName, entryName, parent = None):
         super().__init__(parent)
-        # NetworkTables.initialize(server='10.1.92.2') #Robot IP
-        NetworkTables.initialize(server='localhost') #Local IP for Simulation
+        NetworkTables.initialize(server='10.1.92.2') #Robot IP
+        #NetworkTables.initialize(server='localhost') #Local IP for Simulation
         print("Connecting to " + tableName + "-> " + entryName + ":")
         while not NetworkTables.isConnected():
             print("#", end="")
@@ -21,7 +21,7 @@ class NetworkTableManager(QObject):
         self.entry.addListener(self.valueChanged, NetworkTables.NotifyFlags.UPDATE)
 
     def valueChanged(self, table, key, value, isNew):
-        self.new_value_available.emit((key, value))
+        self.new_value_available.emit(value)
 
     def getValue(self):
         return self.table.getValue(self.entryName, None)
