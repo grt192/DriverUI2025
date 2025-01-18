@@ -27,7 +27,7 @@ class TextWidget(QWidget):
     super().__init__()
     # Qlabel is the basic component, it can be customized for different
     # purposes.
-    self.textLabel = QLabel("Angle: 0.0" , self)
+    self.textLabel = QLabel("Angle: 0IAUDSHILSAUDHIUSAHDISUAHDOIASUYDOSAUDYOASUDY.0" , self)
     layout = QVBoxLayout()
     # Add the view to the layout
     layout.addWidget(self.textLabel)
@@ -35,5 +35,5 @@ class TextWidget(QWidget):
     # Set the layout for the window
     self.setLayout(layout)
     #self.textLabel.setText("0.0")
-    self.networkStuff("defaultParameter","networkTable","networkTableEntry")
+    #self.networkStuff("defaultParameter","networkTable","networkTableEntry")
   
