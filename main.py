@@ -47,7 +47,7 @@ class GRT2025DriverUI(QMainWindow):
 
     self.mainLayout.addWidget(self.infoBoxWidget)
 
-    self.mapWidget = MapWidget()
+    self.mapWidget = MapWidget("BLUE")
     self.mainLayout.addWidget(self.mapWidget)
 
     # self.cameraWidget = CameraWidget()

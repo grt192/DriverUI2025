@@ -2,11 +2,11 @@ import sys
 from PySide6.QtWidgets import QApplication, QWidget, QGraphicsView, QGraphicsScene, QVBoxLayout
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
+import NestedNetworkTableManager
 from NetworkTableManager import NetworkTableManager
 class wheelImage(QWidget):
     def __init__(self):
         super().__init__()
-
         # Set up the widget layout
         layout = QVBoxLayout()
 
@@ -32,25 +32,7 @@ class wheelImage(QWidget):
         self.networkStuff("defaultParameter","networkTable","networkTableEntry")
   
 
-    def networkStuff(self,parameterName,tableName,entryName):
-        self.parameterName = parameterName
-        self.tableName = tableName
-        self.entryName = entryName
 
-        self.NTManager = NetworkTableManager(
-            tableName=tableName, entryName=entryName
-        )
-        self.NTManager.new_value_available.connect(self.updateFromNT)
-
-        if self.NTManager.getValue() is not None:
-            self.updateFromNT(self.NTManager.getValue())    
-    def updateFromNT(self, message):
-        if (isinstance(message, tuple)):
-            self.pixmap_item.setRotation((message[1]%1)*360)
-        
-        #self.pixmap_item.setRotation(float(message[1]))
-        #self.setText(self.parameterName + str(message))
-        #pass
 
     def rotate_image(self, angle):
         """
