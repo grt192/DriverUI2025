@@ -4,14 +4,19 @@ from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget,QPushButton
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt,QPointF
 
+import NetworkTableManager
+
 class MapWidget(QWidget):
     #x, y from blue bottom right
     #x direction for the long way of the field
     #angle from the diagram
     #def setRobotPos(x,y,angle)
-    def __init__(self, alliance):#if alliance false = red, alliance true = blue
+    def __init__(self):#if alliance false = red, alliance true = blue
         super().__init__()
 
+        self.allianceColorNTManager = NetworkTableManager(tableName ="FMSInfo", entryName ="IsRedAlliance")
+        self.allianceColorNTManager.new_value_available.connect(self.updateAllianceColor)
+        self.isRedAlliance = None
         fieldHeight = 690.876#inches long side
         fieldWidth = 317.0#inches
 
@@ -64,3 +69,10 @@ class MapWidget(QWidget):
         robot.setRotation(45)
         layout.addWidget(self.view)
         self.setLayout(layout)
+
+    def updateAllianceColor(self, message: tuple):
+            print(message)
+            if message[1]:
+                print("RED")
+            else:
+                print("BLUE")

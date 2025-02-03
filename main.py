@@ -15,6 +15,7 @@ from Widgets.TextWidget import TextWidget
 from Widgets.CameraWidget import CameraWidget
 from Widgets.PushButtonWidget import PushButtonWidget
 from Widgets.FieldWidget import MapWidget
+from Widgets.AllianceLabel import AllianceLabel
 # Every UI has a MainWindows that contains everything. 
 class GRT2025DriverUI(QMainWindow):
 
@@ -33,7 +34,8 @@ class GRT2025DriverUI(QMainWindow):
     
     self.infoBoxWidget = QWidget(self)
     self.infoBoxLayout = QVBoxLayout(self)
-    self.infoBoxWidget.setMaximumWidth(100)
+    self.infoBoxLayout.addWidget(AllianceLabel(self))
+    self.infoBoxWidget.setMaximumWidth(200)
 
     self.infoBoxWidget.setLayout(self.infoBoxLayout)
 
@@ -45,7 +47,7 @@ class GRT2025DriverUI(QMainWindow):
 
     self.mainLayout.addWidget(self.infoBoxWidget)
 
-    self.mapWidget = MapWidget("RED")
+    self.mapWidget = MapWidget()
     self.mainLayout.addWidget(self.mapWidget)
 
     # self.cameraWidget = CameraWidget()

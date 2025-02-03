@@ -24,7 +24,7 @@ class NetworkTableManager(QObject):
         self.entry.addListener(self.valueChanged, NetworkTables.NotifyFlags.UPDATE)
 
     def valueChanged(self, table, key, value, isNew):
-        self.new_value_available.emit(value)
+        self.new_value_available.emit((self.entryName,value))
 
     def getValue(self):
         #return self.table.getValue(self.entryName, None)
