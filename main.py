@@ -27,11 +27,12 @@ class GRT2025DriverUI(QMainWindow):
     self.resize(1920, 630)
     self.setMaximumHeight(630)
 
-    self.centralWidget = QWidget(self)#magic
+    self.centralWidget = QWidget(self)#omagic
     self.mainLayout = QHBoxLayout(self)
     self.centralWidget.setLayout(self.mainLayout)
     self.setCentralWidget(self.centralWidget)
     
+    #vertical section for all the info boxes
     self.infoBoxWidget = QWidget(self)
     self.infoBoxLayout = QVBoxLayout(self)
     self.infoBoxLayout.addWidget(AllianceLabel(self))
@@ -41,17 +42,13 @@ class GRT2025DriverUI(QMainWindow):
 
     self.topRightText = TextWidget()
     self.infoBoxLayout.addWidget(self.topRightText)
-
     self.t = TextWidget()
     self.infoBoxLayout.addWidget(self.t)
 
-    self.mainLayout.addWidget(self.infoBoxWidget)
 
-    self.mapWidget = MapWidget("BLUE")
-    self.mainLayout.addWidget(self.mapWidget)
+    self.mapWidget = MapWidget(400)
 
-    # self.cameraWidget = CameraWidget()
-    # self.mainLayout.addWidget(self.cameraWidget)
+    self.cameraWidget = CameraWidget()
 
     # self.topRightWheel = wheelImage()
     # self.mainLayout.addWidget(self.topRightWheel,0,0)#y x
@@ -59,7 +56,11 @@ class GRT2025DriverUI(QMainWindow):
     # self.buttonWidget = PushButtonWidget()
     # self.buttonWidget.buttonClass =self.bottomLeftWheel
     # self.mainLayout.addWidget(self.buttonWidget,0,3)
-    
+
+    self.mainLayout.addWidget(self.infoBoxWidget)
+    self.mainLayout.addWidget(self.mapWidget)
+    self.mainLayout.addWidget(self.cameraWidget)
+
 
     self.show()
 

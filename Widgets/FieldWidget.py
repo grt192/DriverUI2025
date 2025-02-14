@@ -45,17 +45,22 @@ class MapWidget(QWidget):
     #             Qt.KeepAspectRatio,  # Maintains aspect ratio
     #             Qt.SmoothTransformation  # High-quality scaling
     #         )
-    def __init__(self, alliance):#if alliance false = red, alliance true = blue
+    def __init__(self, newImageWidth):#if alliance false = red, alliance true = blue
         super().__init__()
-        self.alliance = alliance#which alliance team we are  on
-        fieldSide = alliance#which side of the field we are on
+        self.alliance = "BLUE"#which alliance team we are  on
+        fieldSide = self.alliance#which side of the field we are on
 
         self.fieldHeight = 690.876#inches long side
         self.fieldWidth = 317.0#inches
 
-        idealFieldHeight = 600#pixels
-        self.mapHeight = 600
-        self.conversion =  600/(self.fieldHeight/2)#inches to pixels
+        idealImageWidth = newImageWidth#pixels
+        idealImageHeight = idealImageWidth/(self.fieldWidth/(self.fieldHeight/2))
+        print("width", idealImageWidth)
+        print("height", idealImageHeight)
+        self.resize(idealImageWidth, idealImageHeight)
+
+        self.mapHeight = idealImageHeight
+        self.conversion =  idealImageWidth/(self.fieldHeight/2)#inches to pixels
         self.robotWidth = 30#inches
         self.robotHeight = 30#inches
         layout = QVBoxLayout()
@@ -64,33 +69,38 @@ class MapWidget(QWidget):
         self.scene =  QGraphicsScene(self)
         self.view = QGraphicsView(self.scene)
         self.view.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.scene.setSceneRect(0, 0, 600, 400)  
+        self.setMaximumWidth(idealImageWidth)
+        #self.setMaximumHeight(idealImageHeight)
+
+        self.scene.setSceneRect(0, 0, idealImageWidth, idealImageHeight)  #prevents scrolling
         #self.view.setRenderHint(QGraphicsView.RenderHint.Antialiasing)
         #self.setContentsMargins(0,0,0,0)
         #self.pushButton = QPushButton("Click Me")
         self.bluePixmap = QPixmap('./Images/BlueSide.png')
         self.redPixmap = QPixmap('./Images/RedSide.png')
         self.bluePixmap = self.bluePixmap.scaled(
+                idealImageWidth,
                 10000,
-                self.mapHeight,
                 Qt.KeepAspectRatio,  # Maintains aspect ratio
                 Qt.SmoothTransformation  # High-quality scaling
             )
         self.redPixmap = self.redPixmap.scaled(
+                idealImageWidth,
                 10000,
-                self.mapHeight,
                 Qt.KeepAspectRatio,  # Maintains aspect ratio
                 Qt.SmoothTransformation  # High-quality scaling
             )
-        
+        print("width", self.redPixmap.width())
+        print("height", self.redPixmap.height())
+
         self.robotPixmap = QPixmap('./Images/Robot.png')
         if self.robotPixmap.isNull():
             self.setText("Failed to load robot image!")
         self.mapItem = QGraphicsPixmapItem()
-        if(alliance == "BLUE"):
+        if(self.alliance == "BLUE"):
             self.mapItem.setPixmap(self.bluePixmap)
 
-        elif (alliance == "RED"):
+        elif (self.alliance == "RED"):
             self.mapItem.setPixmap(self.redPixmap)
         # if self.mapItem.isNull():
         #     self.setText("Failed to load map image!")

@@ -12,14 +12,14 @@ class CameraWidget(QWidget):
     camURl = "http://10.1.92.2:1181/stream.mjpg"
     camTestURL = "http://10.1.92.2:1181"
     #320*240@120fps for fisheye
-    resolutionX = 160
-    resolutionY = 120
+    #resolutionX = 160
+    #resolutionY = 120
     
     FPS = 30
-    # resolutionX = 320
-    # resolutionY = 240
+    resolutionX = 320
+    resolutionY = 240
     # FPS = 120
-    scale =5
+    scale = 5
     #The actual video size on the UI
     windowWidth = resolutionX * scale
     windowHeight = resolutionY * scale
@@ -57,6 +57,8 @@ class CameraWidget(QWidget):
 
     def setDriverCap(self):
         self.driverCap = cv2.VideoCapture(self.camURl)
+        #self.driverCap = cv2.VideoCapture(0)
+
         self.driverCap.set(cv2.CAP_PROP_FRAME_WIDTH, self.resolutionX)
         self.driverCap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.resolutionY)
         self.driverCap.set(cv2.CAP_PROP_FPS, self.FPS)
