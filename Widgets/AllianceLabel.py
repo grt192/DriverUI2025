@@ -21,18 +21,19 @@ class AllianceLabel(QLabel):
 
         self.manualUpdate()
 
+
     def updateAllianceColor(self, message: tuple):
         print(message)
         if message[1]:
             if self.stationNumber != None:
                 self.setText("Red " + str(int(self.stationNumber)))
-            self.setStyleSheet("background-color: rgb(254, 66, 30);" + self.generalStyleSheet)
+            self.setStyleSheet("background-color: rgb(50,50,50);" + self.generalStyleSheet)
             self.isRedAlliance = True
             self.isRedSignal.emit(True)
         else:
             if self.stationNumber != None:
                 self.setText("Blue " + str(int(self.stationNumber)))
-            self.setStyleSheet("background-color: rgb(1,90,188);" + self.generalStyleSheet)
+            self.setStyleSheet("background-color: rgb(50,50,50);" + self.generalStyleSheet)
             self.isRedAlliance = False
             self.isRedSignal.emit(False)
 

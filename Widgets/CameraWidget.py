@@ -7,19 +7,20 @@ from PySide6.QtCore import Qt
 import cv2
 import requests
 
+from NetworkTableManager import NetworkTableManager
 
 class CameraWidget(QWidget):
     camURl = "http://10.1.92.2:1181/stream.mjpg"
     camTestURL = "http://10.1.92.2:1181"
     #320*240@120fps for fisheye
-    #resolutionX = 160
-    #resolutionY = 120
+    resolutionX = 160
+    resolutionY = 120
     
     FPS = 30
-    resolutionX = 320
-    resolutionY = 240
+    #resolutionX = 320
+    #resolutionY = 240
     # FPS = 120
-    scale = 5
+    scale = 1.5
     #The actual video size on the UI
     windowWidth = resolutionX * scale
     windowHeight = resolutionY * scale
@@ -46,13 +47,23 @@ class CameraWidget(QWidget):
             self.connected = True
         self.reconnectButton = QPushButton("Reconnect")
         self.reconnectButton.clicked.connect(self.reconnect)
+        self.reconnectButton.setFixedWidth(480)
 
+        self.camera = True#true is front camera false is back camera
+        self.cameraSwitch = QPushButton("switchCamera")
+        self.cameraSwitch.clicked.connect(self.switchCamera)
+        self.cameraSwitch.setFixedWidth(480)
         layout = QVBoxLayout(self)
-
         #Add everything layout.
         layout.addWidget(self.cameraDisplay)
+        layout.addWidget(self.cameraSwitch)
+
         layout.addWidget(self.reconnectButton)
         self.setLayout(layout)
+        
+        
+        self.cameraSelectNTmanager = NetworkTableManager(tableName ="testTable", entryName ="cameraSelection")#assuming position is a (entryname, [Xcord,Ycord,angle])
+
 
 
     def setDriverCap(self):
@@ -64,6 +75,10 @@ class CameraWidget(QWidget):
         self.driverCap.set(cv2.CAP_PROP_FPS, self.FPS)
         # self.driverCap.set(cv2.CAP_PROP_EXPOSURE, 0.5)
         # self.driverCap.set(cv2.CAP_PROP_CONVERT_RGB, 1)
+    def switchCamera(self):
+        self.camera = not self.camera
+        print(self.camera)
+        self.cameraSelectNTmanager.entry.setBoolean(self.camera)
     def reconnect(self):
         if self.checkDriver():
             self.setDriverCap()

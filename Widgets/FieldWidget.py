@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget,QPushButton,QGraphics
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt,QPointF
 
-import NetworkTableManager
+from NetworkTableManager import NetworkTableManager
 
 class MapWidget(QWidget):
     #the origin 
@@ -16,15 +16,14 @@ class MapWidget(QWidget):
         tempAxis = x
         x = y#flip the cordinates 
         y = tempAxis
-        x = x*self.conversion#convert inches into pixels
-        y = y*self.conversion#convert inches into pixels
+
         
         #if we are blue team on blue side
         if (self.alliance == "BLUE"):
             x = self.fieldWidth*self.conversion - x#flip the axis
-            y = self.mapHeight - y#flip the axis
-            x -= self.robotWidth*self.conversion/2#set the origin of transform to the center of the image
-            y -= self.robotHeight*self.conversion/2#set the origin of transform to the center of the image
+            y = self.idealImageHeight - y#flip the axis
+        x -= self.robotWidth*self.conversion/2#set the origin of transform to the center of the image
+        y -= self.robotHeight*self.conversion/2#set the origin of transform to the center of the image
 
         self.robot.setPos(x,y)
         self.robot.setRotation(angle)
@@ -52,15 +51,16 @@ class MapWidget(QWidget):
 
         self.fieldHeight = 690.876#inches long side
         self.fieldWidth = 317.0#inches
+        self.robotX = 0#in meters
+        self.robotY = 0#in meters
+        self.robotRot = 0#
+        self.idealImageWidth = newImageWidth#pixels
+        self.idealImageHeight = self.idealImageWidth*((self.fieldHeight/2)/self.fieldWidth)
+        print("width", self.idealImageWidth)
+        print("height", self.idealImageHeight)
+        #self.setFixedSize(idealImageWidth, idealImageHeight)
 
-        idealImageWidth = newImageWidth#pixels
-        idealImageHeight = idealImageWidth/(self.fieldWidth/(self.fieldHeight/2))
-        print("width", idealImageWidth)
-        print("height", idealImageHeight)
-        self.resize(idealImageWidth, idealImageHeight)
-
-        self.mapHeight = idealImageHeight
-        self.conversion =  idealImageWidth/(self.fieldHeight/2)#inches to pixels
+        self.conversion =  self.idealImageWidth/self.fieldWidth#inches to pixels
         self.robotWidth = 30#inches
         self.robotHeight = 30#inches
         layout = QVBoxLayout()
@@ -68,24 +68,28 @@ class MapWidget(QWidget):
 
         self.scene =  QGraphicsScene(self)
         self.view = QGraphicsView(self.scene)
-        self.view.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setMaximumWidth(idealImageWidth)
-        #self.setMaximumHeight(idealImageHeight)
 
-        self.scene.setSceneRect(0, 0, idealImageWidth, idealImageHeight)  #prevents scrolling
+        self.view.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        #self.setMaximumHeight(idealImageHeight)
+        #self.scene.setSceneRect(0, 0, idealImageWidth, idealImageHeight)  #prevents scrolling
+        self.view.setSceneRect(0,0,self.idealImageWidth,self.idealImageHeight)
+
+        #self.setMaximumSize(idealImageWidth+100,idealImageHeight+10)
+        #self.view.fitInView(self.scene.sceneRect(), Qt.KeepAspectRatio)
+        #self.setFixedSize(idealImageWidth+100,idealImageHeight+10)
         #self.view.setRenderHint(QGraphicsView.RenderHint.Antialiasing)
         #self.setContentsMargins(0,0,0,0)
         #self.pushButton = QPushButton("Click Me")
         self.bluePixmap = QPixmap('./Images/BlueSide.png')
         self.redPixmap = QPixmap('./Images/RedSide.png')
         self.bluePixmap = self.bluePixmap.scaled(
-                idealImageWidth,
+                self.idealImageWidth,
                 10000,
                 Qt.KeepAspectRatio,  # Maintains aspect ratio
                 Qt.SmoothTransformation  # High-quality scaling
             )
         self.redPixmap = self.redPixmap.scaled(
-                idealImageWidth,
+                self.idealImageWidth,
                 10000,
                 Qt.KeepAspectRatio,  # Maintains aspect ratio
                 Qt.SmoothTransformation  # High-quality scaling
@@ -122,7 +126,7 @@ class MapWidget(QWidget):
 
         #map.setPos(QPointF(0,0))
         
-        self.updateRobotPose(("sup",(10,10,45)))
+        self.updateRobotPose(("sup",(2,2,0)))
         layout.addWidget(self.view)
         self.setLayout(layout)
 
@@ -130,44 +134,47 @@ class MapWidget(QWidget):
 
 
         #self.robotPoseNTTableNames = ["Shuffleboard", "Auton", "Field"]#xcord,ycord in  inches and angle in deg
-        #self.robotPoseNTManager = NetworkTableManager("PositionTable","Position")#assuming position is a (entryname, [Xcord,Ycord,angle])
+        #self.robotPoseNTManager = NetworkTableManager(tableName = "testTable",entryName = "randomPose")#assuming position is a (entryname, [Xcord,Ycord,angle])
         #self.robotPoseNTManager.new_value_available.connect(self.updateRobotPose)
+        self.allianceNTManager = NetworkTableManager(tableName ="FMSInfo", entryName ="IsRedAlliance")#assuming position is a (entryname, [Xcord,Ycord,angle])
+        self.allianceNTManager.new_value_available.connect(self.updateAllianceColor)
 
     def updateRobotPose(self, info: tuple):
         entryName = info[0]
         entryValue = info[1]
+        self.robotX = entryValue[0]
+        self.robotY = entryValue[1]
+        self.robotRot = entryValue[2]
+        x = entryValue[0]*39.3700787*self.conversion#meters to inches
+        y = entryValue[1]*39.3700787*self.conversion
+        rot = entryValue[2]
         if (self.alliance == "BLUE"):
-            if (entryValue[0] < self.fieldHeight/2):#the robot blue side
-                
+            if (x < self.idealImageHeight):#the robot blue side
+                self.mapItem.setRotation(0)
+
                 self.mapItem.setPixmap(self.bluePixmap)
+
             else:
+                x -= self.idealImageHeight
                 self.mapItem.setRotation(180)
                 self.mapItem.setPixmap(self.redPixmap)
-
-        self.setRobotPos(entryValue[0],entryValue[1],entryValue[2])
-
-
-
-
-        #self.robotPoseNTTableNames = ["Shuffleboard", "Auton", "Field"]#xcord,ycord in  inches and angle in deg
-        #self.robotPoseNTManager = NetworkTableManager("PositionTable","Position")#assuming position is a (entryname, [Xcord,Ycord,angle])
-        #self.robotPoseNTManager.new_value_available.connect(self.updateRobotPose)
-
-    def updateRobotPose(self, info: tuple):
-        entryName = info[0]
-        entryValue = info[1]
-        if (self.alliance == "BLUE"):
-            if (entryValue[0] < self.fieldHeight/2):#the robot blue side
-                
+        if (self.alliance == "RED"):
+            if (x < self.idealImageHeight):#the robot blue side
+                self.mapItem.setRotation(180)
                 self.mapItem.setPixmap(self.bluePixmap)
             else:
-                self.mapItem.setRotation(180)
+                x -= self.idealImageHeight
+                self.mapItem.setRotation(0)
+
                 self.mapItem.setPixmap(self.redPixmap)
 
-        self.setRobotPos(entryValue[0],entryValue[1],entryValue[2])
+        self.setRobotPos(x,y,rot)
     def updateAllianceColor(self, message: tuple):
             print(message)
             if message[1]:
-                print("RED")
+                self.alliance = "RED"
+
+
             else:
-                print("BLUE")
+                self.alliance = "BLUE"
+            self.updateRobotPose(("hi",(self.robotX,self.robotY,self.robotRot)))

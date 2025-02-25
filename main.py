@@ -11,7 +11,9 @@ from PySide6.QtWidgets import *
 # from PySide6.QtWidgets import QGridLayout
 
 from WheelImage import wheelImage
-from Widgets.TextWidget import TextWidget
+from Widgets.TimeLeftLabel import TimeLeftLabel
+from Widgets.VisionCamConnectivityWidget import VisionCamConnectivityWidget
+from Widgets.DistanceSensorLabel import DistanceSensorLabel
 from Widgets.CameraWidget import CameraWidget
 from Widgets.PushButtonWidget import PushButtonWidget
 from Widgets.FieldWidget import MapWidget
@@ -36,30 +38,43 @@ class GRT2025DriverUI(QMainWindow):
     self.infoBoxWidget = QWidget(self)
     self.infoBoxLayout = QVBoxLayout(self)
     self.infoBoxLayout.addWidget(AllianceLabel(self))
-    self.infoBoxWidget.setMaximumWidth(200)
-
+    self.infoBoxWidget.setFixedWidth(200)
+    self.infoBoxLayout.addWidget(TimeLeftLabel(self))
+    self.infoBoxLayout.addWidget(DistanceSensorLabel(self))
     self.infoBoxWidget.setLayout(self.infoBoxLayout)
 
-    self.topRightText = TextWidget()
-    self.infoBoxLayout.addWidget(self.topRightText)
-    self.t = TextWidget()
-    self.infoBoxLayout.addWidget(self.t)
+    self.cam1Connectivity = VisionCamConnectivityWidget("10.1.92.12")
+    # self.cam2Connectivity = VisionCamConnectivityWidget("10.1.92.13")
+    # self.cam3Connectivity = VisionCamConnectivityWidget("10.1.92.14")
+    # self.cam4Connectivity = VisionCamConnectivityWidget("10.1.92.15")
 
-
-    self.mapWidget = MapWidget(400)
+    self.mapWidget = MapWidget(500)
 
     self.cameraWidget = CameraWidget()
 
+    self.displayBoxWidget = QWidget(self)
+    self.displayBoxLayout = QVBoxLayout()
+    self.displayBoxLayout.addWidget(self.mapWidget)
+    #self.displayBoxLayout.addWidget(self.cameraWidget)
+    self.displayBoxWidget.setLayout(self.displayBoxLayout)
+    self.displayBoxWidget.setMaximumWidth(550)
     # self.topRightWheel = wheelImage()
     # self.mainLayout.addWidget(self.topRightWheel,0,0)#y x
 
     # self.buttonWidget = PushButtonWidget()
     # self.buttonWidget.buttonClass =self.bottomLeftWheel
     # self.mainLayout.addWidget(self.buttonWidget,0,3)
-
     self.mainLayout.addWidget(self.infoBoxWidget)
-    self.mainLayout.addWidget(self.mapWidget)
-    self.mainLayout.addWidget(self.cameraWidget)
+    self.mainLayout.addWidget(self.displayBoxWidget)
+    self.cameraStuffWidget = QWidget(self)
+    self.cameraStuffLayout = QVBoxLayout()
+    self.cameraStuffWidget.setLayout(self.cameraStuffLayout)
+    self.mainLayout.addWidget(self.cameraStuffWidget)
+    self.cameraStuffLayout.addWidget(self.cameraWidget)
+    self.cameraStuffLayout.addWidget(self.cam1Connectivity)
+    # self.cameraStuffLayout.addWidget(self.cam2Connectivity)
+    # self.cameraStuffLayout.addWidget(self.cam3Connectivity)
+    # self.cameraStuffLayout.addWidget(self.cam4Connectivity)
 
 
     self.show()
