@@ -11,6 +11,7 @@ from PySide6.QtWidgets import *
 # from PySide6.QtWidgets import QGridLayout
 
 from WheelImage import wheelImage
+from Widgets.ElevatorLimitSwitchLabel import ElevatorLimitSwitchLabel
 from Widgets.TimeLeftLabel import TimeLeftLabel
 from Widgets.VisionCamConnectivityWidget import VisionCamConnectivityWidget
 from Widgets.DistanceSensorLabel import DistanceSensorLabel
@@ -18,6 +19,8 @@ from Widgets.CameraWidget import CameraWidget
 from Widgets.PushButtonWidget import PushButtonWidget
 from Widgets.FieldWidget import MapWidget
 from Widgets.AllianceLabel import AllianceLabel
+from PySide6.QtGui import QKeySequence, QShortcut
+
 # Every UI has a MainWindows that contains everything. 
 class GRT2025DriverUI(QMainWindow):
 
@@ -26,8 +29,8 @@ class GRT2025DriverUI(QMainWindow):
   def __init__(self):
     super().__init__()
     self.setWindowTitle("GRT 2025 Driver UI")
-    self.resize(1920, 630)
-    self.setMaximumHeight(630)
+    self.resize(1920, 600)
+    self.setMaximumHeight(600)
 
     self.centralWidget = QWidget(self)#omagic
     self.mainLayout = QHBoxLayout(self)
@@ -41,23 +44,28 @@ class GRT2025DriverUI(QMainWindow):
     self.infoBoxWidget.setFixedWidth(200)
     self.infoBoxLayout.addWidget(TimeLeftLabel(self))
     self.infoBoxLayout.addWidget(DistanceSensorLabel(self))
+    self.infoBoxLayout.addWidget(ElevatorLimitSwitchLabel(self))
+
+    #self.exitWidget = 
+    #self.exitWidget.exit_signal.connect(self.closeProcedure)
+
     self.infoBoxWidget.setLayout(self.infoBoxLayout)
 
-    self.cam1Connectivity = VisionCamConnectivityWidget("10.1.92.12")
-    # self.cam2Connectivity = VisionCamConnectivityWidget("10.1.92.13")
-    # self.cam3Connectivity = VisionCamConnectivityWidget("10.1.92.14")
-    # self.cam4Connectivity = VisionCamConnectivityWidget("10.1.92.15")
+    #self.cam1Connectivity = VisionCamConnectivityWidget("10.1.92.12")
+    #self.cam2Connectivity = VisionCamConnectivityWidget("10.1.92.13")
+    self.cam3Connectivity = VisionCamConnectivityWidget("10.1.92.14")
+    self.cam4Connectivity = VisionCamConnectivityWidget("10.1.92.15")
 
-    self.mapWidget = MapWidget(500)
+    self.mapWidget = MapWidget(480)
 
     self.cameraWidget = CameraWidget()
 
     self.displayBoxWidget = QWidget(self)
     self.displayBoxLayout = QVBoxLayout()
     self.displayBoxLayout.addWidget(self.mapWidget)
-    #self.displayBoxLayout.addWidget(self.cameraWidget)
     self.displayBoxWidget.setLayout(self.displayBoxLayout)
     self.displayBoxWidget.setMaximumWidth(550)
+
     # self.topRightWheel = wheelImage()
     # self.mainLayout.addWidget(self.topRightWheel,0,0)#y x
 
@@ -71,13 +79,16 @@ class GRT2025DriverUI(QMainWindow):
     self.cameraStuffWidget.setLayout(self.cameraStuffLayout)
     self.mainLayout.addWidget(self.cameraStuffWidget)
     self.cameraStuffLayout.addWidget(self.cameraWidget)
-    self.cameraStuffLayout.addWidget(self.cam1Connectivity)
-    # self.cameraStuffLayout.addWidget(self.cam2Connectivity)
-    # self.cameraStuffLayout.addWidget(self.cam3Connectivity)
-    # self.cameraStuffLayout.addWidget(self.cam4Connectivity)
+    #self.cameraStuffLayout.addWidget(self.cam1Connectivity)
+    #self.cameraStuffLayout.addWidget(self.cam2Connectivity)
+    self.cameraStuffLayout.addWidget(self.cam3Connectivity)
+    self.cameraStuffLayout.addWidget(self.cam4Connectivity)
 
+    esc_shortcut = QShortcut(QKeySequence("Esc"), self)
+    esc_shortcut.activated.connect(self.close)
 
     self.show()
+
 
 # This is the tamplate to start the UI, just copy it.
 if __name__ == "__main__":
@@ -93,7 +104,9 @@ if __name__ == "__main__":
     # viewer = ImageStreamWidget(stream_url, refresh_interval=1000)
     # viewer.resize(800, 600)
     # viewer.show()
-
+  exited = False
   sys.exit(app.exec())
+  exited = True
+  print (exited)
 
 

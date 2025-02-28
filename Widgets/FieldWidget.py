@@ -3,9 +3,10 @@ from PySide6.QtWidgets import QApplication,QGraphicsView, QGraphicsScene
 from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget,QPushButton,QGraphicsPixmapItem
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt,QPointF
+import struct
 
 from NetworkTableManager import NetworkTableManager
-
+import keyboard
 class MapWidget(QWidget):
     #the origin 
         
@@ -22,6 +23,8 @@ class MapWidget(QWidget):
         if (self.alliance == "BLUE"):
             x = self.fieldWidth*self.conversion - x#flip the axis
             y = self.idealImageHeight - y#flip the axis
+        else:
+            angle += 180
         x -= self.robotWidth*self.conversion/2#set the origin of transform to the center of the image
         y -= self.robotHeight*self.conversion/2#set the origin of transform to the center of the image
 
@@ -61,6 +64,7 @@ class MapWidget(QWidget):
         #self.setFixedSize(idealImageWidth, idealImageHeight)
 
         self.conversion =  self.idealImageWidth/self.fieldWidth#inches to pixels
+        print(self.conversion)
         self.robotWidth = 30#inches
         self.robotHeight = 30#inches
         layout = QVBoxLayout()
@@ -126,7 +130,7 @@ class MapWidget(QWidget):
 
         #map.setPos(QPointF(0,0))
         
-        self.updateRobotPose(("sup",(2,2,0)))
+        self.updateRobotPose(("sup",[10,1,3.1415926/4]))
         layout.addWidget(self.view)
         self.setLayout(layout)
 
@@ -134,47 +138,69 @@ class MapWidget(QWidget):
 
 
         #self.robotPoseNTTableNames = ["Shuffleboard", "Auton", "Field"]#xcord,ycord in  inches and angle in deg
-        #self.robotPoseNTManager = NetworkTableManager(tableName = "testTable",entryName = "randomPose")#assuming position is a (entryname, [Xcord,Ycord,angle])
-        #self.robotPoseNTManager.new_value_available.connect(self.updateRobotPose)
+        self.robotPoseNTManager = NetworkTableManager(tableName = "SwerveStats",entryName = "estimatedPose")#assuming position is a (entryname, [Xcord,Ycord,angle])
+        self.robotPoseNTManager.new_value_available.connect(self.updateRobotPose)
         self.allianceNTManager = NetworkTableManager(tableName ="FMSInfo", entryName ="IsRedAlliance")#assuming position is a (entryname, [Xcord,Ycord,angle])
         self.allianceNTManager.new_value_available.connect(self.updateAllianceColor)
 
-    def updateRobotPose(self, info: tuple):
+    def updateRobotPose(self, info):
+        # print(len(info[1]))
         entryName = info[0]
         entryValue = info[1]
-        self.robotX = entryValue[0]
-        self.robotY = entryValue[1]
-        self.robotRot = entryValue[2]
-        x = entryValue[0]*39.3700787*self.conversion#meters to inches
-        y = entryValue[1]*39.3700787*self.conversion
-        rot = entryValue[2]
-        if (self.alliance == "BLUE"):
-            if (x < self.idealImageHeight):#the robot blue side
-                self.mapItem.setRotation(0)
+        try:
+            try:
+                x, y, rotation = struct.unpack("ddd", info[1])
+            except:
+                rotation = entryValue[2]
+                x= entryValue[0]
+                y= entryValue[1]
+            self.robotRot = rotation#entryValue.degrees()
 
-                self.mapItem.setPixmap(self.bluePixmap)
+            rotation = rotation * 180. / 3.1415926
 
-            else:
-                x -= self.idealImageHeight
-                self.mapItem.setRotation(180)
-                self.mapItem.setPixmap(self.redPixmap)
-        if (self.alliance == "RED"):
-            if (x < self.idealImageHeight):#the robot blue side
-                self.mapItem.setRotation(180)
-                self.mapItem.setPixmap(self.bluePixmap)
-            else:
-                x -= self.idealImageHeight
-                self.mapItem.setRotation(0)
+            # print(x)
+            # print(y)
+            # print(rotation)
+            # print()
+        
+        
+            self.robotX = x#entryValue.X()
+            self.robotY = y#entryValue.Y()
+            # print(str(info))
+            #print (info[1])
+            x = x*39.3700787*self.conversion#meters to inches
+            y = y*39.3700787*self.conversion
+            rot = rotation
+            if (self.alliance == "BLUE"):
+                if (x < self.idealImageHeight):#the robot blue side
+                    self.mapItem.setRotation(0)
 
-                self.mapItem.setPixmap(self.redPixmap)
+                    self.mapItem.setPixmap(self.bluePixmap)
 
-        self.setRobotPos(x,y,rot)
+                else:
+                    x -= self.idealImageHeight
+                    self.mapItem.setRotation(180)
+                    self.mapItem.setPixmap(self.redPixmap)
+            if (self.alliance == "RED"):
+                if (x < self.idealImageHeight):#the robot blue side
+                    self.mapItem.setRotation(180)
+                    self.mapItem.setPixmap(self.bluePixmap)
+                else:
+                    x -= self.idealImageHeight
+                    self.mapItem.setRotation(0)
+
+                    self.mapItem.setPixmap(self.redPixmap)
+
+            self.setRobotPos(x,y,rot)
+        except Exception as e:
+            print("robot pos fail", e)
+            pass
     def updateAllianceColor(self, message: tuple):
-            print(message)
+            #print(message)
             if message[1]:
                 self.alliance = "RED"
 
 
             else:
                 self.alliance = "BLUE"
-            self.updateRobotPose(("hi",(self.robotX,self.robotY,self.robotRot)))
+            self.updateRobotPose(("hi",[self.robotX,self.robotY,self.robotRot]))

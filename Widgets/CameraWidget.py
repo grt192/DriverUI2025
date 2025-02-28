@@ -1,9 +1,12 @@
 import sys
 from PySide6 import QtCore
 from PySide6.QtWidgets import QLabel, QWidget, QPushButton, QVBoxLayout, QHBoxLayout
-from PySide6.QtWidgets import QApplication, QSizePolicy
+from PySide6.QtWidgets import QApplication, QSizePolicy,QGraphicsPixmapItem
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication,QGraphicsView, QGraphicsScene
+from PySide6.QtGui import QKeySequence, QShortcut
+
 import cv2
 import requests
 
@@ -28,13 +31,13 @@ class CameraWidget(QWidget):
     connected = False
     def __init__(self, parent=None):
         super(CameraWidget, self).__init__(parent)
+        self.scene =  QGraphicsScene(self)
+        self.view = QGraphicsView(self.scene)
 
-        self.cameraDisplay = QLabel(self)
-        self.cameraDisplay.setScaledContents(True)
-        self.cameraDisplay.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.cameraDisplay.setMaximumWidth(self.windowWidth)
-        self.cameraDisplay.setMaximumHeight(self.windowHeight)
+        self.view.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.view.setSceneRect(0,0,self.windowWidth,self.windowHeight)
 
+        print("cameraWidget Start")
         #use this time to call the DisplayStream method to retrieve and display frames.
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.displayStream)
@@ -55,17 +58,31 @@ class CameraWidget(QWidget):
         self.cameraSwitch.setFixedWidth(480)
         layout = QVBoxLayout(self)
         #Add everything layout.
-        layout.addWidget(self.cameraDisplay)
+        layout.addWidget(self.view)
         layout.addWidget(self.cameraSwitch)
 
         layout.addWidget(self.reconnectButton)
         self.setLayout(layout)
         
-        
+        self.cameraItem = QGraphicsPixmapItem()
+        self.scene.addItem(self.cameraItem)
+
         self.cameraSelectNTmanager = NetworkTableManager(tableName ="testTable", entryName ="cameraSelection")#assuming position is a (entryname, [Xcord,Ycord,angle])
+        
+        self.hud = QPixmap('./Images/hud.png')
+        self.hud = self.hud.scaled(
+                self.resolutionX*2,#self.scale,
+                self.resolutionY*2,#self.scale,
+                Qt.KeepAspectRatio,  # Maintains aspect ratio
+                Qt.SmoothTransformation  # High-quality scaling
+            )
 
-
-
+        self.hudItem = QGraphicsPixmapItem()
+        self.hudItem.setPixmap(self.hud)
+        self.scene.addItem(self.hudItem)
+        switch_cam_shortcut = QShortcut(QKeySequence("Space"), self)
+        switch_cam_shortcut.activated.connect(self.switchCamera)
+        print ('cameraWidget done')
     def setDriverCap(self):
         self.driverCap = cv2.VideoCapture(self.camURl)
         #self.driverCap = cv2.VideoCapture(0)
@@ -77,7 +94,7 @@ class CameraWidget(QWidget):
         # self.driverCap.set(cv2.CAP_PROP_CONVERT_RGB, 1)
     def switchCamera(self):
         self.camera = not self.camera
-        print(self.camera)
+        print("camera switch pressed")
         self.cameraSelectNTmanager.entry.setBoolean(self.camera)
     def reconnect(self):
         if self.checkDriver():
@@ -121,6 +138,8 @@ class CameraWidget(QWidget):
                 frame.data, w, h, bytesPerLine, QImage.Format_RGB888
             )
             pixmap = QPixmap.fromImage(cvtToQtFormat)
-            self.cameraDisplay.setPixmap(pixmap)
-            self.cameraDisplay.setAlignment(Qt.AlignCenter)
+            self.cameraItem.setPixmap(pixmap)
+            #self.cameraDisplay.setAlignment(Qt.AlignCenter)
+
             self.timer.start(1)
+    
