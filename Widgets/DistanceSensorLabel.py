@@ -13,10 +13,10 @@ class DistanceSensorLabel(QLabel):
         self.setAlignment(Qt.AlignCenter)
         self.setAutoFillBackground(True)
         self.generalStyleSheet = "color: white;"\
-            "font-weight: bold; font-size: 20px;"
+            "font-weight: bold; font-size: 20px;background-color: rgb(50,50,50);"
         self.setStyleSheet(self.generalStyleSheet)
         self.setText("Distance Sensor:\nNo Data")
-
+        self.manualUpdate()
 
     def setStatus(self, message: tuple):
         if (message[1]):
@@ -26,4 +26,6 @@ class DistanceSensorLabel(QLabel):
         else:
             self.setText("Dist Sensor:\nNot Detected")
             self.setStyleSheet("background-color: rgb(50,50,50);" + self.generalStyleSheet)
+    def manualUpdate(self):
+        self.setStatus(("init", self.distSensorStatusNTManager.getValue()))
 

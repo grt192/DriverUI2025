@@ -24,7 +24,7 @@ class MapWidget(QWidget):
             x = self.fieldWidth*self.conversion - x#flip the axis
             y = self.idealImageHeight - y#flip the axis
         else:
-            angle += 180
+            angle = 180-angle
         x -= self.robotWidth*self.conversion/2#set the origin of transform to the center of the image
         y -= self.robotHeight*self.conversion/2#set the origin of transform to the center of the image
 
@@ -142,7 +142,7 @@ class MapWidget(QWidget):
         self.robotPoseNTManager.new_value_available.connect(self.updateRobotPose)
         self.allianceNTManager = NetworkTableManager(tableName ="FMSInfo", entryName ="IsRedAlliance")#assuming position is a (entryname, [Xcord,Ycord,angle])
         self.allianceNTManager.new_value_available.connect(self.updateAllianceColor)
-
+        self.manualUpdateAllianceColor()
     def updateRobotPose(self, info):
         # print(len(info[1]))
         entryName = info[0]
@@ -204,3 +204,9 @@ class MapWidget(QWidget):
             else:
                 self.alliance = "BLUE"
             self.updateRobotPose(("hi",[self.robotX,self.robotY,self.robotRot]))
+    def manualUpdateAllianceColor(self):
+        if (self.allianceNTManager.getValue() != None):
+            self.updateAllianceColor(("init", self.allianceNTManager.getValue()))
+        else:
+            self.setStyleSheet("background-color: gray;" 
+                               )

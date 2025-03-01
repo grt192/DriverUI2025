@@ -2,11 +2,22 @@ from networktables import NetworkTables
 from PySide6.QtCore import Signal, QObject
 import time
 class NetworkTableManager(QObject):
+    questioned = False
+    simulate = "y"
     new_value_available = Signal(tuple)
+
     def __init__(self, tableName, entryName, parent = None):
         super().__init__(parent)
-        NetworkTables.initialize(server='10.1.92.2')
-        #NetworkTables.initialize(server='localhost')
+        if (not NetworkTableManager.questioned):
+            NetworkTableManager.simulate = input("simulate y/n: ")
+            NetworkTableManager.questioned = True
+        if (NetworkTableManager.simulate == "y"):
+            NetworkTables.initialize(server='localhost')
+            print ("localHost")
+        else:
+            NetworkTables.initialize(server='10.1.92.2')
+            print ("10.1.92.2")
+
         print("Connecting to " + tableName + "-> " + entryName + ":")
         while not NetworkTables.isConnected():
             print("#", end="")
